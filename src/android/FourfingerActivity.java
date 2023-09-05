@@ -60,8 +60,11 @@ import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
-import com.digitalpersona.uareu.*;
+
 import com.loopj.android.http.Base64;
+
+
+import com.veridiumid.sdk.fourf.FourFIntegrationWrapper;
 
 
 public class FourfingerActivity extends Activity {
@@ -102,10 +105,9 @@ public class FourfingerActivity extends Activity {
     private int Type;
 
     private String TAG = "FourfingerActivity";
-
+	private String TAG_TMP = "LogTemporal";
     
-    private Engine engine=null;
-    private Fmd fmd=null;
+	private String realMinutia="";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -120,15 +122,18 @@ public class FourfingerActivity extends Activity {
         BestFingerLeft = getIntent().getIntExtra("LeftFinger", 0);
         Liveness = getIntent().getBooleanExtra("Liveness", false);
         Type = getIntent().getIntExtra("Type", 0);
-
-        Log.d(TAG, "intent got. Left " + String.valueOf(BestFingerLeft) + "Right " + String.valueOf(BestFingerRight));
-
-
-        try {
-            engine = UareUGlobal.GetEngine();
+		
+		
+		 try {
+			Log.d(TAG,"Version 4F FourFIntegrationWrapper: "+ FourFIntegrationWrapper.version());
+			Log.d(TAG,"Version 4F VeridiumSDK: "+ VeridiumSDK.getSingleton().getVersionName());
         } catch (Exception e) {
 
         }
+
+
+        Log.d(TAG, "intent got. Left " + String.valueOf(BestFingerLeft) + "Right " + String.valueOf(BestFingerRight));
+
 
         preInitSDK();
 
@@ -290,6 +295,18 @@ public class FourfingerActivity extends Activity {
          */
 
         // ExportConfig.setActiveLivenessBeta(false);
+		
+		Log.d(TAG_TMP, "Type:" + Type);
+
+
+		if (Type==1)
+		{
+			Log.d(TAG_TMP, "Entro 1");
+			ExportConfig.setFormat(IBiometricFormats.TemplateFormat.FORMAT_ISO_2_2005);
+		}else{
+			Log.d(TAG_TMP, "Entro 2");
+			ExportConfig.setFormat(IBiometricFormats.TemplateFormat.FORMAT_JSON);
+		}
         ExportConfig.setActiveLivenessBeta(Liveness);
         ExportConfig.setLivenessFactor(99);
         ExportConfig.setPack_bmp(false);
@@ -303,7 +320,7 @@ public class FourfingerActivity extends Activity {
         ExportConfig.setUseNistType4(false);
         ExportConfig.setPackDebugInfo(true);
         ExportConfig.setPackAuditImage(true);
-        ExportConfig.configureTimeout(true, true, 60, 3);
+        ExportConfig.configureTimeout(true, 60, 3, false);
         /*
          * ExportConfig.setWSQCompressRatio(ExportConfig.WSQCompressRatio.COMPRESS_10to1
          * );
@@ -318,6 +335,9 @@ public class FourfingerActivity extends Activity {
     IBiometricResultsHandler resultHandler = new IBiometricResultsHandler() {
         @Override
         public void handleSuccess(Map<String, byte[][]> results) {
+			
+			Log.d(TAG_TMP, "Escaneo exitoso");
+			
             ToastHelper.showMessage(FourfingerActivity.this, "Escaneo Exitoso");
             // Handle exported templates here
             if (results != null && results.size() > 0) {
@@ -332,13 +352,32 @@ public class FourfingerActivity extends Activity {
                 byte[][] data = entry.getValue();
 
                 String templateString;
-
+				Log.d(TAG_TMP, "Escaneo exitoso");
                 if (bio_key.equals(FourFInterface.UID)) {
-                    // template data is contained with the first element
+                    Log.d(TAG_TMP, "template data is contained with the first element 1");
                     template = data[1];
-
+					Log.d(TAG_TMP, "template data is contained with the first element 2");
+					if(Type==1){
+						Log.d(TAG_TMP, "Entro 1");
+						realMinutia = Base64.encodeToString(data[1], Base64.NO_WRAP);
+						Log.d(TAG_TMP, "Obtuvo ISO 2 y lo convirtió");
+						Log.d(TAG_TMP, "ISO 2: " + realMinutia);
+						
+						
+						Log.d(TAG_TMP, "Enviando el log");
+						Intent i = new Intent();
+						i.putExtra("base64String", "");
+						i.putExtra("hand", "");
+						i.putExtra("img", "");
+						i.putExtra("minutia", realMinutia);
+						setResult(Activity.RESULT_OK, i);
+						finish();
+						Log.d(TAG_TMP, "se envió el log");
+						
+						
+					} else {
                     ConvertByteArray(template);
-
+					}
                 }
             }
         }
@@ -447,18 +486,6 @@ public class FourfingerActivity extends Activity {
             }
 
 
-            if (Type==1)
-            {
-            String respuestaRAW = fingerImpressionImage.getString("BinaryBase64ObjectRAW");
-            int widthVeridium = fingerImpressionImage.getInt("Width");
-            int heightVeridium= fingerImpressionImage.getInt("Height");   
-            byte[] rawImage = Base64.decode(respuestaRAW, Base64.NO_WRAP);
-
-            fmd = engine.CreateFmd(rawImage,widthVeridium,heightVeridium,500,1,1,Fmd.Format.ANSI_378_2004);
-
-			minutia = Base64.encodeToString(fmd.getData(), Base64.NO_WRAP);
-            }
-
             Intent i = new Intent();
             i.putExtra("base64String", respuestaWSQ);
             i.putExtra("hand", Hand);
@@ -485,8 +512,6 @@ public class FourfingerActivity extends Activity {
                     new VeridiumSDKFourFInitializer(fourfLicence),
                     new VeridiumSDKDataInitializer());
             // To get VeridiumVersion
-            Log.e("VSDK: ", "" + VeridiumSDK.getSingleton().getVersionName());
-            Log.e("VSDK4F:", "" + FourFIntegrationWrapper.version());
 
         } catch (Exception e) {
             e.printStackTrace();
