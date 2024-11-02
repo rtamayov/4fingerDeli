@@ -7,7 +7,7 @@ import org.apache.cordova.PluginResult;
 
 import android.Manifest;
 import android.app.Activity;
-import android.app.AlertDialog;
+import androidx.appcompat.app.AlertDialog;
 import android.content.Context;
 import android.annotation.TargetApi;
 import android.content.Intent;
@@ -307,7 +307,7 @@ public class FourfingerActivity extends Activity {
 			Log.d(TAG_TMP, "Entro 2");
 			ExportConfig.setFormat(IBiometricFormats.TemplateFormat.FORMAT_JSON);
 		}
-        ExportConfig.setActiveLivenessBeta(Liveness);
+        //ExportConfig.setActiveLivenessBeta(Liveness);
         ExportConfig.setLivenessFactor(99);
         ExportConfig.setPack_bmp(false);
         ExportConfig.setPack_png(false);
@@ -318,9 +318,9 @@ public class FourfingerActivity extends Activity {
         ExportConfig.setUseLiveness(true);
         ExportConfig.setCalculate_NFIQ(true);
         ExportConfig.setUseNistType4(false);
-        ExportConfig.setPackDebugInfo(true);
+        //ExportConfig.setPackDebugInfo(true);
         ExportConfig.setPackAuditImage(true);
-        ExportConfig.configureTimeout(true, 60, 3, false);
+        ExportConfig.configureTimeout(true, 20, 3, false);
         /*
          * ExportConfig.setWSQCompressRatio(ExportConfig.WSQCompressRatio.COMPRESS_10to1
          * );
@@ -506,7 +506,7 @@ public class FourfingerActivity extends Activity {
 
         try {
             // TODO add here the 4 FingersID Licence
-            String fourfLicence = "Q18VQMWqSUDJm5B+AWjzsrRIVNqkDCEPNonesuGm3rbTsnKnrrJmka5PoCg1P95zsQ7j8K9/jTXejQqjTQP9CnsiZGV2aWNlRmluZ2VycHJpbnQiOiJtUjdUVUNaNlMrWnpMMlZtRzZuaU8yaTM5TGFLNDRMYS9yV1JVRDB1aGRjPSIsImxpY2Vuc2UiOiJlK3RDcXkySXo0SWpXNzAvQnV2M1M5MHdPK2xnZm53VjhUYytDYWtVRGp3YjUwTXBRaDRIWGpYUVdCclFUMGxIWG5Lb0pVUU5oeVZ6dDNJaXl3cjBBSHNpZEhsd1pTSTZJa0pKVDB4SlFsTWlMQ0p1WVcxbElqb2lORVlpTENKc1lYTjBUVzlrYVdacFpXUWlPakUyTmpNd09UQXpNVFUyTlRBc0ltTnZiWEJoYm5sT1lXMWxJam9pU1c1emIyeDFkR2x2Ym5NZ0xTQkZiblJsYkNCTWIyZHBjM1JwWTNNZ0tHaHZiV1VnWkdWc2FYWmxjbmtwSWl3aVkyOXVkR0ZqZEVsdVptOGlPaUpGYm5SbGJDQXRJR2h2YldVZ1pHVnNhWFpsY25rZ05FWkZJSFkxSUdOdmJTNWxiblJsYkM1dGIzWnBiQzVoY0hCa1pXeHBkbVZ5ZVNCbGVIQWdUMk4wSWl3aVkyOXVkR0ZqZEVWdFlXbHNJam9pYldsbmRXVnNMbWhsY201aGJtUmxla0JwYm5OdmJIVjBhVzl1Y3k1d1pTSXNJbk4xWWt4cFkyVnVjMmx1WjFCMVlteHBZMHRsZVNJNklrNVJlRUl5VG5kdk9FaEVNV3RwV0d4aE0yeHdlV2s1U21WRVpFeHpLMEk1YVdaYWJqQm1NbHBNTkZFOUlpd2ljM1JoY25SRVlYUmxJam94TmpZek1EUXhOakF3TURBd0xDSmxlSEJwY21GMGFXOXVSR0YwWlNJNk1UWTVPRGN5TkRnd01EQXdNQ3dpWjNKaFkyVkZibVJFWVhSbElqb3hOams0T0RrM05qQXdNREF3TENKMWMybHVaMU5CVFV4VWIydGxiaUk2Wm1Gc2MyVXNJblZ6YVc1blJuSmxaVkpCUkVsVlV5STZabUZzYzJVc0luVnphVzVuUVdOMGFYWmxSR2x5WldOMGIzSjVJanBtWVd4elpTd2lZbWx2YkdsaVJtRmpaVVY0Y0c5eWRFVnVZV0pzWldRaU9tWmhiSE5sTENKeWRXNTBhVzFsUlc1MmFYSnZibTFsYm5RaU9uc2ljMlZ5ZG1WeUlqcG1ZV3h6WlN3aVpHVjJhV05sVkdsbFpDSTZabUZzYzJWOUxDSm1aV0YwZFhKbGN5STZleUppWVhObElqcDBjblZsTENKemRHVnlaVzlNYVhabGJtVnpjeUk2ZEhKMVpTd2laWGh3YjNKMElqcDBjblZsZlN3aVpXNW1iM0pqWldSUWNtVm1aWEpsYm1ObGN5STZleUp0WVc1a1lYUnZjbmxNYVhabGJtVnpjeUk2Wm1Gc2MyVjlMQ0oyWlhKemFXOXVJam9pS2k0cUluMD0ifQ==";
+			String fourfLicence = "l8wAnJgcvAH2pJX3Lvt+SebKfDPb1o9DpyBIBGyr2+WXG3iK/Y0yu2yY9INuF0VZTbWcCB31+ufz4d3Y6KLzBXsiZGV2aWNlRmluZ2VycHJpbnQiOiJtUjdUVUNaNlMrWnpMMlZtRzZuaU8yaTM5TGFLNDRMYS9yV1JVRDB1aGRjPSIsImxpY2Vuc2UiOiJXNTcxS21mTTZuOWVERElycjMvK0Q2UEh4ZzNsMHhNMFErdXY0dUFRYnZYeUFZZ2p6U3ptbGdUVmZZa0hBSld5VlVhUHNaVVRTbHdjMWxKbXk2ZVRCWHNpZEhsd1pTSTZJa0pKVDB4SlFsTWlMQ0p1WVcxbElqb2lORVlpTENKc1lYTjBUVzlrYVdacFpXUWlPakUzTXpBek1EYzBPVGswTXpVc0ltTnZiWEJoYm5sT1lXMWxJam9pU1c1emIyeDFkR2x2Ym5NZ0xTQkZiblJsYkNCTWIyZHBjM1JwWTNNZ0tHaHZiV1VnWkdWc2FYWmxjbmtwSWl3aVkyOXVkR0ZqZEVsdVptOGlPaUpGYm5SbGJDQXRJR2h2YldVZ1pHVnNhWFpsY25rZ05FWkZJR052YlM1bGJuUmxiQzV0YjNacGJDNWhjSEJrWld4cGRtVnllU0JsZUhBZ1QyTjBJRE14SURJd01qVWlMQ0pqYjI1MFlXTjBSVzFoYVd3aU9pSnRhV2QxWld3dWFHVnlibUZ1WkdWNlFHbHVjMjlzZFhScGIyNXpMbkJsSWl3aWMzVmlUR2xqWlc1emFXNW5VSFZpYkdsalMyVjVJam9pT1RkQ2RGVnFUVk5PUTNJeGRYbFNSM3BHWlZGYVlrRlVObWRUZDFOMGMzTnJNRmhRVmtob1FYWXdVVDBpTENKemRHRnlkRVJoZEdVaU9qRTJPVGcxTlRJd01EQXdNREFzSW1WNGNHbHlZWFJwYjI1RVlYUmxJam94TnpZeE9EZ3pNakF3TURBd0xDSm5jbUZqWlVWdVpFUmhkR1VpT2pFM05qSXdOVFl3TURBd01EQXNJblZ6YVc1blUwRk5URlJ2YTJWdUlqcG1ZV3h6WlN3aWRYTnBibWRHY21WbFVrRkVTVlZUSWpwbVlXeHpaU3dpZFhOcGJtZEJZM1JwZG1WRWFYSmxZM1J2Y25raU9tWmhiSE5sTENKaWFXOXNhV0pHWVdObFJYaHdiM0owUlc1aFlteGxaQ0k2Wm1Gc2MyVXNJbkoxYm5ScGJXVkZiblpwY205dWJXVnVkQ0k2ZXlKelpYSjJaWElpT21aaGJITmxMQ0prWlhacFkyVlVhV1ZrSWpwbVlXeHpaWDBzSW1abFlYUjFjbVZ6SWpwN0ltSmhjMlVpT25SeWRXVXNJbk4wWlhKbGIweHBkbVZ1WlhOeklqcDBjblZsTENKbGVIQnZjblFpT25SeWRXVjlMQ0psYm1admNtTmxaRkJ5WldabGNtVnVZMlZ6SWpwN0ltMWhibVJoZEc5eWVVeHBkbVZ1WlhOeklqcG1ZV3h6Wlgwc0luWmxjbk5wYjI0aU9pSXFMaW9pZlE9PSJ9";
             VeridiumSDK.init(appContext,
                     new DefaultVeridiumSDKModelFactory(appContext),
                     new VeridiumSDKFourFInitializer(fourfLicence),
