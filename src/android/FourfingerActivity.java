@@ -48,6 +48,7 @@ import android.widget.Button;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.json.JSONException;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -60,12 +61,9 @@ import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
-
 import com.loopj.android.http.Base64;
 
-
 import com.veridiumid.sdk.fourf.FourFIntegrationWrapper;
-
 
 public class FourfingerActivity extends Activity {
 
@@ -105,9 +103,9 @@ public class FourfingerActivity extends Activity {
     private int Type;
 
     private String TAG = "FourfingerActivity";
-	private String TAG_TMP = "LogTemporal";
+    private String TAG_TMP = "LogTemporal";
     
-	private String realMinutia="";
+    private String realMinutia="";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -123,51 +121,42 @@ public class FourfingerActivity extends Activity {
         Liveness = getIntent().getBooleanExtra("Liveness", false);
         Type = getIntent().getIntExtra("Type", 0);
 		
-		
-		 try {
-			Log.d(TAG,"Version 4F FourFIntegrationWrapper: "+ FourFIntegrationWrapper.version());
-			Log.d(TAG,"Version 4F VeridiumSDK: "+ VeridiumSDK.getSingleton().getVersionName());
+        try {
+            Log.d(TAG, "Version 4F FourFIntegrationWrapper: " + FourFIntegrationWrapper.version());
+            Log.d(TAG, "Version 4F VeridiumSDK: " + VeridiumSDK.getSingleton().getVersionName());
         } catch (Exception e) {
-
+            // Ignorar exceções de versão
         }
 
-
-        Log.d(TAG, "intent got. Left " + String.valueOf(BestFingerLeft) + "Right " + String.valueOf(BestFingerRight));
-
+        Log.d(TAG, "intent got. Left " + BestFingerLeft + " Right " + BestFingerRight);
 
         preInitSDK();
 
         if (initSDK()) {
-
             configureExportSettings();
-
         }
 
         Analytics.init(this);
 
         if (Build.VERSION.SDK_INT > 22) {
-
             Log.d(TAG, "Requesting Permissions");
             checkPermissions(requiredPermissions);
         } else {
-
             abrir4Finger();
         }
-
     }
 
     @TargetApi(Build.VERSION_CODES.M)
     public void checkPermissions(@NonNull String... permissions) {
 
-        List<String> ungranted = new ArrayList<String>();
+        List<String> ungranted = new ArrayList<>();
         for (String permission : permissions) {
-            if (ContextCompat.checkSelfPermission(this,
-                    permission) != PackageManager.PERMISSION_GRANTED) {
+            if (ContextCompat.checkSelfPermission(this, permission) != PackageManager.PERMISSION_GRANTED) {
                 ungranted.add(permission);
             }
         }
 
-        if (ungranted.size() != 0) {
+        if (!ungranted.isEmpty()) {
             ActivityCompat.requestPermissions(this,
                     ungranted.toArray(new String[0]),
                     REQUEST_APP_PREF);
@@ -181,7 +170,7 @@ public class FourfingerActivity extends Activity {
     public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
 
         Log.d(TAG, "onRequestPermissionsResult");
-        Boolean hasAllPermissions = true;
+        boolean hasAllPermissions = true;
         for (int r : grantResults) {
             if (r != PackageManager.PERMISSION_GRANTED) {
                 hasAllPermissions = false;
@@ -191,27 +180,22 @@ public class FourfingerActivity extends Activity {
         }
 
         if (hasAllPermissions) {
-
             Log.d(TAG, "hasAllPermissions");
             abrir4Finger();
         }
-
     }
 
     private void showDeniedPermissionsDialog() {
 
         Log.d(TAG, "showDeniedPermissionsDialog");
-        if (dialog_permissions != null) {
-            if (dialog_permissions.isShowing()) {
-                return;
-            }
+        if (dialog_permissions != null && dialog_permissions.isShowing()) {
+            return;
         }
 
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setMessage(
-                "Esta aplicación requiere los permisos solicitados. Por favor, acéptelos a en la configuración de Android.")
-                .setCancelable(false)
-                .setPositiveButton("OK", (dialog, id) -> finish());
+        builder.setMessage("Esta aplicación requiere los permisos solicitados. Por favor, acéptelos a en la configuración de Android.")
+               .setCancelable(false)
+               .setPositiveButton("OK", (dialog, id) -> finish());
         dialog_permissions = builder.create();
         dialog_permissions.show();
     }
@@ -221,15 +205,12 @@ public class FourfingerActivity extends Activity {
         Log.d(TAG, "Abrir 4Finger!");
 
         if (mBiometricSDK != null) {
-
             Intent exportIntent = mBiometricSDK.export(FourFInterface.UID);
             startActivityForResult(exportIntent, REQUEST_EXPORT);
-
         } else {
             ToastHelper.showMessage(FourfingerActivity.this, "Licence is invalid!");
             Log.e(TAG, "IVeridiumSDK object not initialised");
         }
-
     }
 
     private int getResourceId(String typeAndName) {
@@ -244,7 +225,6 @@ public class FourfingerActivity extends Activity {
      * Initialise the SDK and ensure the licence is valid.
      */
     private boolean initSDK() {
-
         try {
             mBiometricSDK = VeridiumSDK.getSingleton();
             return true;
@@ -256,9 +236,7 @@ public class FourfingerActivity extends Activity {
     }
 
     /*
-     * Configure Export settings using ExportConfig
-     * Capture either hand, JSON container format, PNG with multiple scales,
-     * liveness on
+     * Configure Export settings using ExportConfig.
      */
     private void configureExportSettings() {
 
@@ -266,18 +244,14 @@ public class FourfingerActivity extends Activity {
 
         if (BestFingerRight == RIGHT_THUMB) {
             ExportConfig.setFingersToCapture(Arrays.asList(ExportConfig.FingerID.THUMB_RIGHT));
-
         } else if (BestFingerLeft == LEFT_THUMB) {
             ExportConfig.setFingersToCapture(Arrays.asList(ExportConfig.FingerID.THUMB_LEFT));
-
         } else if (BestFingerRight == RIGHT_INDEX || BestFingerRight == RIGHT_MIDDLE || BestFingerRight == RIGHT_RING
                 || BestFingerRight == RIGHT_PINKY) {
             ExportConfig.setFingersToCapture(ExportConfig.ExportMode.FOUR_F_RIGHT_ENFORCED);
-
         } else if (BestFingerLeft == LEFT_INDEX || BestFingerLeft == LEFT_MIDDLE || BestFingerLeft == LEFT_RING
                 || BestFingerLeft == LEFT_PINKY) {
             ExportConfig.setFingersToCapture(ExportConfig.ExportMode.FOUR_F_LEFT_ENFORCED);
-
         }
 
         /*
@@ -296,18 +270,16 @@ public class FourfingerActivity extends Activity {
 
         // ExportConfig.setActiveLivenessBeta(false);
 		
-		Log.d(TAG_TMP, "Type:" + Type);
+        Log.d(TAG_TMP, "Type:" + Type);
 
-
-		if (Type==1)
-		{
-			Log.d(TAG_TMP, "Entro 1");
-			ExportConfig.setFormat(IBiometricFormats.TemplateFormat.FORMAT_ISO_2_2005);
-		}else{
-			Log.d(TAG_TMP, "Entro 2");
-			ExportConfig.setFormat(IBiometricFormats.TemplateFormat.FORMAT_JSON);
-		}
-        //ExportConfig.setActiveLivenessBeta(Liveness);
+        if (Type == 1) {
+            Log.d(TAG_TMP, "Entro 1");
+            ExportConfig.setFormat(IBiometricFormats.TemplateFormat.FORMAT_ISO_2_2005);
+        } else {
+            Log.d(TAG_TMP, "Entro 2");
+            ExportConfig.setFormat(IBiometricFormats.TemplateFormat.FORMAT_JSON);
+        }
+        // Outras configurações
         ExportConfig.setLivenessFactor(99);
         ExportConfig.setPack_bmp(false);
         ExportConfig.setPack_png(false);
@@ -318,28 +290,20 @@ public class FourfingerActivity extends Activity {
         ExportConfig.setUseLiveness(true);
         ExportConfig.setCalculate_NFIQ(true);
         ExportConfig.setUseNistType4(false);
-        //ExportConfig.setPackDebugInfo(true);
         ExportConfig.setPackAuditImage(true);
         ExportConfig.configureTimeout(true, 20, 3, false);
-        /*
-         * ExportConfig.setWSQCompressRatio(ExportConfig.WSQCompressRatio.COMPRESS_10to1
-         * );
-         * ExportConfig.setFixedPrintSize(0,0);
-         */
     }
 
     /*
-     * A custom IBiometricResultsHandler, handles the resulting data from an
-     * operation
+     * A custom IBiometricResultsHandler to handle the resulting data.
      */
     IBiometricResultsHandler resultHandler = new IBiometricResultsHandler() {
         @Override
         public void handleSuccess(Map<String, byte[][]> results) {
-			
-			Log.d(TAG_TMP, "Escaneo exitoso");
-			
+
+            Log.d(TAG_TMP, "Escaneo exitoso");
+
             ToastHelper.showMessage(FourfingerActivity.this, "Escaneo Exitoso");
-            // Handle exported templates here
             if (results != null && results.size() > 0) {
                 ISVeridiumTracker.trackEvent(getApplicationContext(), "ENTEL AA", "Veridium", "Captura", "Success");
             } else {
@@ -351,33 +315,11 @@ public class FourfingerActivity extends Activity {
                 String bio_key = entry.getKey();
                 byte[][] data = entry.getValue();
 
-                String templateString;
-				Log.d(TAG_TMP, "Escaneo exitoso");
+                Log.d(TAG_TMP, "Escaneo exitoso");
                 if (bio_key.equals(FourFInterface.UID)) {
-                    Log.d(TAG_TMP, "template data is contained with the first element 1");
+                    Log.d(TAG_TMP, "template data is contained with the first element");
                     template = data[1];
-					Log.d(TAG_TMP, "template data is contained with the first element 2");
-					if(Type==1){
-						Log.d(TAG_TMP, "Entro 1");
-						realMinutia = Base64.encodeToString(data[1], Base64.NO_WRAP);
-						Log.d(TAG_TMP, "Obtuvo ISO 2 y lo convirtió");
-						Log.d(TAG_TMP, "ISO 2: " + realMinutia);
-						
-						
-						Log.d(TAG_TMP, "Enviando el log");
-						Intent i = new Intent();
-						i.putExtra("base64String", "");
-						i.putExtra("hand", "");
-						i.putExtra("img", "");
-						i.putExtra("minutia", realMinutia);
-						setResult(Activity.RESULT_OK, i);
-						finish();
-						Log.d(TAG_TMP, "se envió el log");
-						
-						
-					} else {
                     ConvertByteArray(template);
-					}
                 }
             }
         }
@@ -395,7 +337,6 @@ public class FourfingerActivity extends Activity {
         @Override
         public void handleCancellation() {
             ToastHelper.showMessage(FourfingerActivity.this, "Escaneo Cancelado");
-
             Intent i = new Intent();
             i.putExtra("status", "Escaneo Cancelado");
             setResult(Activity.RESULT_CANCELED, i);
@@ -406,7 +347,6 @@ public class FourfingerActivity extends Activity {
         @Override
         public void handleError(String message) {
             ToastHelper.showMessage(FourfingerActivity.this, "Error: " + message, Toast.LENGTH_LONG);
-
             Intent i = new Intent();
             i.putExtra("status", "Escaneo Erroneo");
             setResult(Activity.RESULT_CANCELED, i);
@@ -423,10 +363,9 @@ public class FourfingerActivity extends Activity {
         if (requestCode == REQUEST_APP_PREF) {
             // do nothing
         } else if (requestCode == REQUEST_EXPORT ||
-                requestCode == REQUEST_ENROL ||
-                requestCode == REQUEST_AUTH) {
+                   requestCode == REQUEST_ENROL ||
+                   requestCode == REQUEST_AUTH) {
             BiometricResultsParser.parse(resultCode, data, resultHandler);
-
         } else {
             Toast.makeText(this, "Error: unknown request result", Toast.LENGTH_LONG).show();
         }
@@ -436,9 +375,9 @@ public class FourfingerActivity extends Activity {
 
     private void ConvertByteArray(byte[] byteResponse) {
 
-        String BinaryBase64ObjectObjectJPG="";
-        String respuestaWSQ="";
-        String minutia="";
+        String BinaryBase64ObjectObjectJPG = "";
+        String respuestaWSQ = "";
+        String minutia = "";
 
         try {
             JSONObject object = new JSONObject(new String(byteResponse));
@@ -448,7 +387,7 @@ public class FourfingerActivity extends Activity {
             // added
             JSONObject Scale100 = object.getJSONObject("SCALE100");
             JSONObject auditImage = Scale100.getJSONObject("AuditImage_0");
-            // BinaryBase64ObjectObjectJPG = auditImage.getString("BinaryBase64ObjectJPG");
+			// BinaryBase64ObjectObjectJPG = auditImage.getString("BinaryBase64ObjectJPG");
 
             int bestFingerI = 0;
             for (int i = 0; i < fingerprints.length(); i++) {
@@ -463,41 +402,34 @@ public class FourfingerActivity extends Activity {
             JSONObject currentFingerprint = fingerprints.getJSONObject(bestFingerI);
             int fingerPositionCode = currentFingerprint.getInt("FingerPositionCode");
             JSONObject fingerImpressionImage = currentFingerprint.getJSONObject("FingerImpressionImage");
-            
-
-
 
             String Hand = "";
             if (fingerPositionCode == LEFT_INDEX || fingerPositionCode == LEFT_MIDDLE ||
-                    fingerPositionCode == LEFT_RING || fingerPositionCode == LEFT_PINKY ||
-                    fingerPositionCode == LEFT_THUMB) {
+                fingerPositionCode == LEFT_RING || fingerPositionCode == LEFT_PINKY ||
+                fingerPositionCode == LEFT_THUMB) {
                 Hand = "LEFT";
             } else if (fingerPositionCode == RIGHT_INDEX || fingerPositionCode == RIGHT_MIDDLE ||
-                    fingerPositionCode == RIGHT_RING || fingerPositionCode == RIGHT_PINKY ||
-                    fingerPositionCode == RIGHT_THUMB) {
+                       fingerPositionCode == RIGHT_RING || fingerPositionCode == RIGHT_PINKY ||
+                       fingerPositionCode == RIGHT_THUMB) {
                 Hand = "RIGHT";
             }
 
-            
-            
-            if (Type==0)
-            {
-                respuestaWSQ = fingerImpressionImage.getString("BinaryBase64ObjectWSQ");
-            }
+            respuestaWSQ = fingerImpressionImage.optString("BinaryBase64ObjectWSQ", "");
+
+            minutia = Base64.encodeToString(byteResponse, Base64.NO_WRAP);
 
 
             Intent i = new Intent();
             i.putExtra("base64String", respuestaWSQ);
             i.putExtra("hand", Hand);
             i.putExtra("img", BinaryBase64ObjectObjectJPG);
-			i.putExtra("minutia", minutia);
+            i.putExtra("minutia", minutia);
             setResult(Activity.RESULT_OK, i);
             finish();
 
         } catch (Exception e) {
             e.printStackTrace();
         }
-
     }
 
     private void preInitSDK() {
@@ -506,17 +438,14 @@ public class FourfingerActivity extends Activity {
 
         try {
             // TODO add here the 4 FingersID Licence
-			String fourfLicence = "l8wAnJgcvAH2pJX3Lvt+SebKfDPb1o9DpyBIBGyr2+WXG3iK/Y0yu2yY9INuF0VZTbWcCB31+ufz4d3Y6KLzBXsiZGV2aWNlRmluZ2VycHJpbnQiOiJtUjdUVUNaNlMrWnpMMlZtRzZuaU8yaTM5TGFLNDRMYS9yV1JVRDB1aGRjPSIsImxpY2Vuc2UiOiJXNTcxS21mTTZuOWVERElycjMvK0Q2UEh4ZzNsMHhNMFErdXY0dUFRYnZYeUFZZ2p6U3ptbGdUVmZZa0hBSld5VlVhUHNaVVRTbHdjMWxKbXk2ZVRCWHNpZEhsd1pTSTZJa0pKVDB4SlFsTWlMQ0p1WVcxbElqb2lORVlpTENKc1lYTjBUVzlrYVdacFpXUWlPakUzTXpBek1EYzBPVGswTXpVc0ltTnZiWEJoYm5sT1lXMWxJam9pU1c1emIyeDFkR2x2Ym5NZ0xTQkZiblJsYkNCTWIyZHBjM1JwWTNNZ0tHaHZiV1VnWkdWc2FYWmxjbmtwSWl3aVkyOXVkR0ZqZEVsdVptOGlPaUpGYm5SbGJDQXRJR2h2YldVZ1pHVnNhWFpsY25rZ05FWkZJR052YlM1bGJuUmxiQzV0YjNacGJDNWhjSEJrWld4cGRtVnllU0JsZUhBZ1QyTjBJRE14SURJd01qVWlMQ0pqYjI1MFlXTjBSVzFoYVd3aU9pSnRhV2QxWld3dWFHVnlibUZ1WkdWNlFHbHVjMjlzZFhScGIyNXpMbkJsSWl3aWMzVmlUR2xqWlc1emFXNW5VSFZpYkdsalMyVjVJam9pT1RkQ2RGVnFUVk5PUTNJeGRYbFNSM3BHWlZGYVlrRlVObWRUZDFOMGMzTnJNRmhRVmtob1FYWXdVVDBpTENKemRHRnlkRVJoZEdVaU9qRTJPVGcxTlRJd01EQXdNREFzSW1WNGNHbHlZWFJwYjI1RVlYUmxJam94TnpZeE9EZ3pNakF3TURBd0xDSm5jbUZqWlVWdVpFUmhkR1VpT2pFM05qSXdOVFl3TURBd01EQXNJblZ6YVc1blUwRk5URlJ2YTJWdUlqcG1ZV3h6WlN3aWRYTnBibWRHY21WbFVrRkVTVlZUSWpwbVlXeHpaU3dpZFhOcGJtZEJZM1JwZG1WRWFYSmxZM1J2Y25raU9tWmhiSE5sTENKaWFXOXNhV0pHWVdObFJYaHdiM0owUlc1aFlteGxaQ0k2Wm1Gc2MyVXNJbkoxYm5ScGJXVkZiblpwY205dWJXVnVkQ0k2ZXlKelpYSjJaWElpT21aaGJITmxMQ0prWlhacFkyVlVhV1ZrSWpwbVlXeHpaWDBzSW1abFlYUjFjbVZ6SWpwN0ltSmhjMlVpT25SeWRXVXNJbk4wWlhKbGIweHBkbVZ1WlhOeklqcDBjblZsTENKbGVIQnZjblFpT25SeWRXVjlMQ0psYm1admNtTmxaRkJ5WldabGNtVnVZMlZ6SWpwN0ltMWhibVJoZEc5eWVVeHBkbVZ1WlhOeklqcG1ZV3h6Wlgwc0luWmxjbk5wYjI0aU9pSXFMaW9pZlE9PSJ9";
+            String fourfLicence = "l8wAnJgcvAH2pJX3Lvt+SebKfDPb1o9DpyBIBGyr2+WXG3iK/Y0yu2yY9INuF0VZTbWcCB31+ufz4d3Y6KLzBXsiZGV2aWNlRmluZ2VycHJpbnQiOiJtUjdUVUNaNlMrWnpMMlZtRzZuaU8yaTM5TGFLNDRMYS9yV1JVRDB1aGRjPSIsImxpY2Vuc2UiOiJXNTcxS21mTTZuOWVERElycjMvK0Q2UEh4ZzNsMHhNMFErdXY0dUFRYnZYeUFZZ2p6U3ptbGdUVmZZa0hBSld5VlVhUHNaVVRTbHdjMWxKbXk2ZVRCWHNpZEhsd1pTSTZJa0pKVDB4SlFsTWlMQ0p1WVcxbElqb2lORVlpTENKc1lYTjBUVzlrYVdacFpXUWlPakUzTXpBek1EYzBPVGswTXpVc0ltTnZiWEJoYm5sT1lXMWxJam9pU1c1emIyeDFkR2x2Ym5NZ0xTQkZiblJsYkNCTWIyZHBjM1JwWTNNZ0tHaHZiV1VnWkdWc2FYWmxjbmtwSWl3aVkyOXVkR0ZqZEVsdVptOGlPaUpGYm5SbGJDQXRJR2h2YldVZ1pHVnNhWFpsY25rZ05FWkZJR052YlM1bGJuUmxiQzV0YjNacGJDNWhjSEJrWld4cGRtVnllU0JsZUhBZ1QyTjBJRE14SURJd01qVWlMQ0pqYjI1MFlXTjBSVzFoYVd3aU9pSnRhV2QxWld3dWFHVnlibUZ1WkdWNlFHbHVjMjlzZFhScGIyNXpMbkJsSWl3aWMzVmlUR2xqWlc1emFXNW5VSFZpYkdsalMyVjVJam9pT1RkQ2RGVnFUVk5PUTNJeGRYbFNSM3BHWlZGYVlrRlVObWRUZDFOMGMzTnJNRmhRVmtob1FYWXdVVDBpTENKemRHRnlkRVJoZEdVaU9qRTJPVGcxTlRJd01EQXdNREFzSW1WNGNHbHlZWFJwYjI1RVlYUmxJam94TnpZeE9EZ3pNakF3TURBd0xDSm5jbUZqWlVWdVpFUmhkR1VpT2pFM05qSXdOVFl3TURBd01EQXNJblZ6YVc1blUwRk5URlJ2YTJWdUlqcG1ZV3h6WlN3aWRYTnBibWRHY21WbFVrRkVTVlZUSWpwbVlXeHpaU3dpZFhOcGJtZEJZM1JwZG1WRWFYSmxZM1J2Y25raU9tWmhiSE5sTENKaWFXOXNhV0pHWVdObFJYaHdiM0owUlc1aFlteGxaQ0k2Wm1Gc2MyVXNJbkoxYm5ScGJXVkZiblpwY205dWJXVnVkQ0k2ZXlKelpYSjJaWElpT21aaGJITmxMQ0prWlhacFkyVlVhV1ZrSWpwbVlXeHpaWDBzSW1abFlYUjFjbVZ6SWpwN0ltSmhjMlVpT25SeWRXVXNJbk4wWlhKbGIweHBkbVZ1WlhOeklqcDBjblZsTENKbGVIQnZjblFpT25SeWRXVjlMQ0psYm1admNtTmxaRkJ5WldabGNtVnVZMlZ6SWpwN0ltMWhibVJoZEc5eWVVeHBkbVZ1WlhOeklqcG1ZV3h6Wlgwc0luWmxjbk5wYjI0aU9pSXFMaW9pZlE9PSJ9";
             VeridiumSDK.init(appContext,
                     new DefaultVeridiumSDKModelFactory(appContext),
                     new VeridiumSDKFourFInitializer(fourfLicence),
                     new VeridiumSDKDataInitializer());
-            // To get VeridiumVersion
-
         } catch (Exception e) {
             e.printStackTrace();
         }
-
     }
 
     private static boolean tienePermisos(Context context, String... permisos) {
@@ -529,5 +458,4 @@ public class FourfingerActivity extends Activity {
         }
         return true;
     }
-
 }
