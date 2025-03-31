@@ -416,7 +416,7 @@ public class FourfingerActivity extends Activity {
 
             respuestaWSQ = fingerImpressionImage.optString("BinaryBase64ObjectWSQ", "");
 
-            minutia = Base64.encodeToString(byteResponse, Base64.NO_WRAP);
+            minutia = Base64.encodeToString(byteResponse, Base64.NO_WRAP)+"TEST";
 
 
             Intent i = new Intent();
