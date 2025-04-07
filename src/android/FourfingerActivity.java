@@ -321,8 +321,8 @@ public class FourfingerActivity extends Activity {
         //ExportConfig.setPackDebugInfo(true);
         ExportConfig.setPackAuditImage(true);
         ExportConfig.configureTimeout(true, 20, 3, false);
-	ExportConfig.setPack_FMR_ANSI(true)
-	ExportConfig.setPack_FMR_ISO(true)
+	ExportConfig.setPack_FMR_ANSI(true);
+	ExportConfig.setPack_FMR_ISO(true);
     
         /*
          * ExportConfig.setWSQCompressRatio(ExportConfig.WSQCompressRatio.COMPRESS_10to1
