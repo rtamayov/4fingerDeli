@@ -321,6 +321,9 @@ public class FourfingerActivity extends Activity {
         //ExportConfig.setPackDebugInfo(true);
         ExportConfig.setPackAuditImage(true);
         ExportConfig.configureTimeout(true, 20, 3, false);
+	ExportConfig.setPack_FMR_ANSI(true)
+	ExportConfig.setPack_FMR_ISO(true)
+    
         /*
          * ExportConfig.setWSQCompressRatio(ExportConfig.WSQCompressRatio.COMPRESS_10to1
          * );
@@ -483,14 +486,16 @@ public class FourfingerActivity extends Activity {
             if (Type==0)
             {
                 respuestaWSQ = fingerImpressionImage.getString("BinaryBase64ObjectWSQ");
+		minutia = Scale085.getString("ANSI378_FMR");
             }
 
 
+	    
             Intent i = new Intent();
             i.putExtra("base64String", respuestaWSQ);
             i.putExtra("hand", Hand);
             i.putExtra("img", BinaryBase64ObjectObjectJPG);
-			i.putExtra("minutia", minutia);
+	    i.putExtra("minutia", minutia);
             setResult(Activity.RESULT_OK, i);
             finish();
 
